@@ -27,7 +27,7 @@ struct comma{
     struct comma *next;
 };
 
-int syntax(int state, char* input, struct comma **head);
+int syntax(char* input, struct comma **head);
 void cleanSpaces(char* input, int len);
 void randNums(struct roll* temp, int modulus);
 void highLow(struct roll* temp, char hOrL, char operation);
@@ -37,11 +37,11 @@ struct comma *newComma();
 void insertNewRoll(struct comma **tail, struct roll **end, int numRolls);
 void insertNewInt(struct comma **tail, struct roll **end, int numRolls);
 void insertNewComma(struct comma **tail);
-
+void displayRolls(struct comma **head);
 
 int main(int argc, char* argv[])
 {
-    int error = 0;
+    int error = 0, i = 0;
     struct comma *head = NULL;
     srand(time(NULL));
 
@@ -50,30 +50,46 @@ int main(int argc, char* argv[])
         printf("No arguments provided. Program is exiting.\n");
         return -1;
     }
+    else if(argc > 2)
+    {
+        printf("Dicer only takes 1 argument; use \" at the beginning and end of what you want dicer to evaluate.\n");
+        printf("Evaluating %s\n", argv[1]);
+    }
     printf("%d) input: %s\n", __LINE__, argv[1]);
     
     cleanSpaces(argv[1], strlen(argv[1]));
 
-    error = syntax(0, argv[1], &head);
+    error = syntax(argv[1], &head);
     if(error)
     {
         printf("Invalid syntax at character %c!!!!\n", argv[1][error]);
         return -3;
     }
 
+    printf("%d) ----------------------------------\n", __LINE__);
+    printf("%d) Main head = %u\t head->first = %u\n", __LINE__, (unsigned int) head, (unsigned int) head -> first);
+
+    printf("First roll values: ");
+    for(i = 0; i < head->first->arraySize; ++i)
+    {
+        printf("%d%s", head->first->arrayOfValues[i], (i != (head->first->arraySize) - 1) ? ", " : "\n");
+    }
+
+    displayRolls(&head);
+
     return 0;
 }
 
-int syntax(int state, char *input, struct comma **head)
+int syntax(char *input, struct comma **head)
 {
     int index = -1, numRolls = 1, rollsPtr = 0, encounteredD = 0;
+    int state = 0;
     char rolls[10], operation = '\0';
     struct roll  *end;
     struct comma *tail;
 
     *head = newComma();
 
-//    end = *head -> first;
     tail = *head;
 
     memset(rolls, '\0', 10);
@@ -306,20 +322,25 @@ int syntax(int state, char *input, struct comma **head)
             insertNewInt(&tail, &end, numRolls);
         }
     }
-//    printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
-//    int i = 0;
-//    struct roll *cur;
-//    cur = *head -> first;
-//    while(cur)
-//    {
-//        for(i = 0; i < cur -> arraySize; ++i)
-//            printf("%d) array[%d]=%d, ", __LINE__, i, cur -> arrayOfValues[i]);
-//        cur = cur -> next;
-//    }
+
+    printf("%d) ----------------------------------\n", __LINE__);
+    printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
+    int i = 0;
+    struct roll *cur;
+    cur = (*head) -> first;
+    printf("%d) ", __LINE__);
+    while(cur)
+    {
+        printf("\t");
+        for(i = 0; i < cur -> arraySize; ++i)
+            printf("array[%d]=%d, ", i, cur -> arrayOfValues[i]);
+        cur = cur -> next;
+        printf("\n");
+    }
     return 0;
 }
 
-void cleanSpaces(char* input, int len)
+void cleanSpaces(char *input, int len)
 {
     int lead = 0, follow = 0;
 
@@ -525,3 +546,31 @@ void insertNewComma(struct comma **tail)
 
 }
 
+void displayRolls(struct comma **head)
+{
+    int i = 0, j = 0;
+    struct roll  *bot = NULL;
+    struct comma *top = NULL;
+
+    top = *head;
+   
+    printf("%d) ----------------------------------\n", __LINE__);
+    printf("%d) Display *head = %u\t bot = %u\n", __LINE__, (unsigned int) *head, (unsigned int) bot);
+    
+    while(top)
+    {
+        bot = top -> first;
+        printf("%dth rolls:\n", i++);
+        while(bot)
+        {
+            printf("(%d)\t", bot -> arraySize);
+            for(j = 0; j < bot -> arraySize; ++j)
+            {
+                printf("%d%s", bot -> arrayOfValues[j], (j != (bot -> arraySize) - 1) ? ", " : "\n");
+            }
+            bot = bot -> next;
+        }
+        printf("End of while(bot)\n");
+        top = top -> next;
+    }
+}
