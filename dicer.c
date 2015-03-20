@@ -42,6 +42,7 @@ void displayRolls(struct comma **head);
 int main(int argc, char* argv[])
 {
     int error = 0, i = 0;
+    char *input;
     struct comma *head = NULL;
     srand(time(NULL));
 
@@ -52,17 +53,34 @@ int main(int argc, char* argv[])
     }
     else if(argc > 2)
     {
-        printf("Dicer only takes 1 argument; use \" at the beginning and end of what you want dicer to evaluate.\n");
-        printf("Evaluating %s\n", argv[1]);
-    }
-    printf("%d) input: %s\n", __LINE__, argv[1]);
-    
-    cleanSpaces(argv[1], strlen(argv[1]));
+        int arglen = 0, j = 0, k = 0;
+        
+        for(i = 1; i < argc; ++i)
+            arglen += strlen(argv[i]);
+        arglen++;
 
-    error = syntax(argv[1], &head);
+        input = (char *) calloc(1, arglen * sizeof(char));
+        
+        for(i = 1, j = 0; i < argc; ++i)
+        {
+            for(k = 0; k < strlen(argv[i]); ++k, ++j)
+                input[j] = argv[i][k];
+        }
+        
+        input[arglen-1] = '\0';
+    }
+    else
+    {
+        input = argv[1];
+        cleanSpaces(input, strlen(input));
+    }
+
+    printf("%d) input: %s\n", __LINE__, input);
+    
+    error = syntax(input, &head);
     if(error)
     {
-        printf("Invalid syntax at character %c!!!!\n", argv[1][error]);
+        printf("Invalid syntax at character %c!!!!\n", input[error]);
         return -3;
     }
 
@@ -244,7 +262,7 @@ int syntax(char *input, struct comma **head)
             operation = '-';
             state = 4;
         }
-        else if((state == 4) && ((input[index] == 'L') || (input[index] == 'H')))
+        else if((state == 4) && ((input[index] == 'L') || (input[index] == 'l') || (input[index] == 'H') || (input[index] == 'h')))
         {
             highLow(end, input[index], operation);
             state = 5;
@@ -377,7 +395,7 @@ void highLow(struct roll *temp, char hOrL, char operation)
     int i = 0, savedIndex = 0, value = 0;
     if(operation == '+')
     {
-        if(hOrL == 'H')
+        if(hOrL == 'H' || hOrL == 'h')
         {
             value = temp->arrayOfValues[i];
             while(++i < temp->arraySize)
@@ -386,7 +404,7 @@ void highLow(struct roll *temp, char hOrL, char operation)
                     value = temp->arrayOfValues[i];
             }
         }
-        else if(hOrL == 'L')
+        else if(hOrL == 'L' || hOrL == 'l')
         {
             value = temp->arrayOfValues[i];
             while(++i < temp->arraySize)
@@ -406,7 +424,7 @@ void highLow(struct roll *temp, char hOrL, char operation)
     }
     else if(operation == '-')
     {
-        if(hOrL == 'H')
+        if(hOrL == 'H' || hOrL == 'h')
         {
             value = temp->arrayOfValues[i];
             while(++i < temp->arraySize)
@@ -418,7 +436,7 @@ void highLow(struct roll *temp, char hOrL, char operation)
                 }
             }
         }
-        else if(hOrL == 'L')
+        else if(hOrL == 'L' || hOrL == 'l')
         {
             value = temp->arrayOfValues[i];
             while(++i < temp->arraySize)
@@ -553,7 +571,8 @@ void displayRolls(struct comma **head)
     struct comma *top = NULL;
 
     top = *head;
-   
+    bot = (*head) -> first;
+
     printf("%d) ----------------------------------\n", __LINE__);
     printf("%d) Display *head = %u\t bot = %u\n", __LINE__, (unsigned int) *head, (unsigned int) bot);
     
