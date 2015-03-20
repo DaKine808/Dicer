@@ -23,23 +23,27 @@ struct roll{
 };
 
 struct comma{
-    struct roll *head;
+    struct roll  *first;
     struct comma *next;
-}
+};
 
-int syntax(int state, char* input, struct roll **head);
+int syntax(int state, char* input, struct comma **head);
 void cleanSpaces(char* input, int len);
 void randNums(struct roll* temp, int modulus);
 void highLow(struct roll* temp, char hOrL, char operation);
 struct roll *newRoll(int numRolls);
 struct roll *newInt(int value);
+struct comma *newComma();
+void insertNewRoll(struct comma **tail, struct roll **end, int numRolls);
+void insertNewInt(struct comma **tail, struct roll **end, int numRolls);
+void insertNewComma(struct comma **tail);
+
 
 int main(int argc, char* argv[])
 {
-    int error = 0, i = 0;
-    struct roll *head = NULL;
-    struct roll *cur = NULL;
-    srand(time(NULL));    
+    int error = 0;
+    struct comma *head = NULL;
+    srand(time(NULL));
 
     if(argc < 2)
     {
@@ -57,27 +61,20 @@ int main(int argc, char* argv[])
         return -3;
     }
 
-    printf("\n%d) Head=%u\n", __LINE__, (unsigned int) head);
-
-    cur = head;
-    while(cur)
-    {
-        for(i = 0; i < cur -> arraySize; ++i)
-            printf("array[%d]=%d, ", i, cur -> arrayOfValues[i]);
-        printf("\n");
-        cur = cur -> next;
-    }
-
     return 0;
 }
 
-int syntax(int state, char *input, struct roll **head)
+int syntax(int state, char *input, struct comma **head)
 {
     int index = -1, numRolls = 1, rollsPtr = 0, encounteredD = 0;
     char rolls[10], operation = '\0';
-    struct roll *end;
+    struct roll  *end;
+    struct comma *tail;
 
-    end = *head;
+    *head = newComma();
+
+//    end = *head -> first;
+    tail = *head;
 
     memset(rolls, '\0', 10);
 
@@ -99,16 +96,7 @@ int syntax(int state, char *input, struct roll **head)
                 rollsPtr = 0;
             }
 
-            if(!*head)
-            {
-                *head = newRoll(numRolls);
-                end = *head;
-            }
-            else
-            {
-                end -> next = newRoll(numRolls);
-                end = end -> next;
-            }
+            insertNewRoll(&tail, &end, numRolls);
 
             numRolls = 1;
             memset(rolls, '\0', 10);
@@ -125,7 +113,12 @@ int syntax(int state, char *input, struct roll **head)
             rolls[rollsPtr++] = input[index];
             state = 1;
         }
-        else if((state == 1) && (input[index] == '+' || input[index] == ',' || input[index] == '-'))
+        else if((state == 1) && (input[index] == ','))
+        {
+            insertNewComma(&tail);
+            state = 0;
+        }
+        else if((state == 1) && (input[index] == '+' || input[index] == '-' || input[index] == ','))
         {
             if(rollsPtr > 0)
             {
@@ -139,16 +132,11 @@ int syntax(int state, char *input, struct roll **head)
             }
             else //Then the value is just some int
             {
-                if(!*head)
-                {
-                    *head = newInt(numRolls);
-                    end = *head;
-                }
-                else
-                {
-                    end -> next = newInt(numRolls);
-                    end = end -> next;
-                }
+                insertNewInt(&tail, &end, numRolls);
+            }
+            if(input[index] == ',')
+            {
+                insertNewComma(&tail);
             }
             
             numRolls = 1;
@@ -166,16 +154,7 @@ int syntax(int state, char *input, struct roll **head)
                 rollsPtr = 0;
             }
 
-            if(!*head)
-            {
-                *head = newRoll(numRolls);
-                end = *head;
-            }
-            else
-            {
-                end -> next = newRoll(numRolls);
-                end = end -> next;
-            }
+            insertNewRoll(&tail, &end, numRolls);
 
             numRolls = 1;
             memset(rolls, '\0', 10);
@@ -200,6 +179,7 @@ int syntax(int state, char *input, struct roll **head)
             rolls[rollsPtr++] = input[index];
             state = 3;
         }
+
         else if((state == 3) && (input[index] == '+' || input[index] == ','))
         {
             if(rollsPtr > 0)
@@ -214,16 +194,11 @@ int syntax(int state, char *input, struct roll **head)
             }
             else //Then the value is just some int
             {
-                if(!*head)
-                {
-                    *head = newInt(numRolls);
-                    end = *head;
-                }
-                else
-                {
-                    end -> next = newInt(numRolls);
-                    end = end -> next;
-                }
+                insertNewInt(&tail, &end, numRolls);
+            }
+            if(input[index] == ',')
+            {
+                insertNewComma(&tail);
             }
             
             numRolls = 1;
@@ -245,16 +220,7 @@ int syntax(int state, char *input, struct roll **head)
             }
             else //Then the value is just some int
             {
-                if(!*head)
-                {
-                    *head = newInt(numRolls);
-                    end = *head;
-                }
-                else
-                {
-                    end -> next = newInt(numRolls);
-                    end = end -> next;
-                }
+                insertNewInt(&tail, &end, numRolls);
             }
             
             numRolls = 1;
@@ -282,16 +248,7 @@ int syntax(int state, char *input, struct roll **head)
                 rollsPtr = 0;
             }
 
-            if(!*head)
-            {
-                *head = newRoll(numRolls);
-                end = *head;
-            }
-            else
-            {
-                end -> next = newRoll(numRolls);
-                end = end -> next;
-            }
+            insertNewRoll(&tail, &end, numRolls);
 
             numRolls = 1;
             memset(rolls, '\0', 10);
@@ -302,7 +259,7 @@ int syntax(int state, char *input, struct roll **head)
             printf("\nReturning from state 5!\n");
             return 0;
         }
-        else if((state == 5) && (input[index] == '+' || input[index] == ',' || input[index] == '-'))
+        else if((state == 5) && (input[index] == '+' || input[index] == '-' || input[index] == ','))
         {
             if(rollsPtr > 0)
             {
@@ -316,16 +273,11 @@ int syntax(int state, char *input, struct roll **head)
             }
             else //Then the value is just some int
             {
-                if(!*head)
-                {
-                    *head = newInt(numRolls);
-                    end = *head;
-                }
-                else
-                {
-                    end -> next = newInt(numRolls);
-                    end = end -> next;
-                }
+                insertNewInt(&tail, &end, numRolls);
+            }
+            if(input[index] == ',')
+            {
+                insertNewComma(&tail);
             }
             
             numRolls = 1;
@@ -351,28 +303,19 @@ int syntax(int state, char *input, struct roll **head)
         }
         else //Then the value is just some int
         {
-            if(!*head)
-            {
-                *head = newInt(numRolls);
-                end = *head;
-            }
-            else
-            {
-                end -> next = newInt(numRolls);
-                end = end -> next;
-            }
+            insertNewInt(&tail, &end, numRolls);
         }
     }
-    printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
-    int i = 0;
-    struct roll *cur;
-    cur = *head;
-    while(cur)
-    {
-        for(i = 0; i < cur -> arraySize; ++i)
-            printf("%d) array[%d]=%d, ", __LINE__, i, cur -> arrayOfValues[i]);
-        cur = cur -> next;
-    }
+//    printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
+//    int i = 0;
+//    struct roll *cur;
+//    cur = *head -> first;
+//    while(cur)
+//    {
+//        for(i = 0; i < cur -> arraySize; ++i)
+//            printf("%d) array[%d]=%d, ", __LINE__, i, cur -> arrayOfValues[i]);
+//        cur = cur -> next;
+//    }
     return 0;
 }
 
@@ -408,7 +351,7 @@ void randNums(struct roll *temp, int modulus)
 }
 
 //There might be a bug in the way I increment i in the following function
-void highLow(struct roll* temp, char hOrL, char operation)
+void highLow(struct roll *temp, char hOrL, char operation)
 {
     int i = 0, savedIndex = 0, value = 0;
     if(operation == '+')
@@ -489,7 +432,7 @@ struct roll *newRoll(int numRolls)
     nodePtr = (struct roll *) calloc(1, sizeof(struct roll));
     if(nodePtr == NULL)
     {
-        fprintf(stderr, "Unable to allocate memory for struct\n");
+        fprintf(stderr, "Unable to allocate memory for struct newRoll\n");
     }
     nodePtr -> arraySize = numRolls;
     nodePtr -> addedValue = 0;
@@ -510,7 +453,7 @@ struct roll *newInt(int value)
     nodePtr = (struct roll *) calloc(1, sizeof(struct roll));
     if(nodePtr == NULL)
     {
-        fprintf(stderr, "Unable to allocate memory for struct\n");
+        fprintf(stderr, "Unable to allocate memory for struct newInt\n");
     }
     nodePtr -> arraySize = 1;
     nodePtr -> addedValue = 0;
@@ -524,3 +467,61 @@ struct roll *newInt(int value)
 
     return nodePtr;
 }
+
+struct comma *newComma()
+{
+    struct comma *temp;
+    
+    temp = (struct comma *) calloc(1, sizeof(struct comma));
+    if(temp == NULL)
+    {
+        fprintf(stderr, "Unable to allocate memory for struct comma\n");
+    }
+    temp -> first = NULL;
+    temp -> next = NULL;
+    return temp;
+}
+
+void insertNewRoll(struct comma **tail, struct roll **end, int numRolls)
+{
+    if(!(*tail) -> first)
+    {
+        (*tail) -> first = newRoll(numRolls);
+        *end = (*tail) -> first;
+    }
+    else
+    {
+        (*end) -> next = newRoll(numRolls);
+        *end = (*end) -> next;
+    }
+}
+
+void insertNewInt(struct comma **tail, struct roll **end, int numRolls)
+{
+   if(!(*tail) -> first)
+   {
+       (*tail) -> first = newInt(numRolls);
+       *end = (*tail) -> first;
+   }
+   else
+   {
+       (*end) -> next = newInt(numRolls);
+       *end = (*end) -> next;
+   }
+}
+
+void insertNewComma(struct comma **tail)
+{
+    if(!*tail)
+    {
+        *tail = newComma();
+        *tail = (*tail) -> next;
+    }
+    else
+    {
+        (*tail) -> next = newComma();
+        *tail = (*tail) -> next;
+    }
+
+}
+
