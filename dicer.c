@@ -22,28 +22,24 @@ struct roll{
     struct roll *next;
 };
 
-struct comma{
-    struct roll  *first;
-    struct comma *next;
-};
-
-int syntax(char* input, struct comma **head);
-void cleanSpaces(char* input, int len);
-void randNums(struct roll* temp, int modulus);
-void highLow(struct roll* temp, char hOrL, char operation);
+int syntax(char *input, struct roll ***head, int commaCount);
+void cleanSpaces(char *input, int len);
+void randNums(struct roll *temp, int modulus);
+void highLow(struct roll *temp, char hOrL, char operation);
 struct roll *newRoll(int numRolls);
 struct roll *newInt(int value);
 struct comma *newComma();
-void insertNewRoll(struct comma **tail, struct roll **end, int numRolls);
-void insertNewInt(struct comma **tail, struct roll **end, int numRolls);
-void insertNewComma(struct comma **tail);
-void displayRolls(struct comma **head);
+void insertNewRoll(struct roll ***tail, struct roll **end, int numRolls);
+void insertNewInt(struct roll ***tail, struct roll **end, int numRolls);
+void insertNewComma(struct roll ***tail);
+void displayRolls(struct roll ***head, int commaCount);
+int countCommas(char *input);
 
 int main(int argc, char* argv[])
 {
-    int error = 0, i = 0;
+    int error = 0, commaCount = 0, i = 0;
     char *input;
-    struct comma *head = NULL;
+    struct roll **head;
     srand(time(NULL));
 
     if(argc < 2)
@@ -75,9 +71,13 @@ int main(int argc, char* argv[])
         cleanSpaces(input, strlen(input));
     }
 
+    commaCount = countCommas(input);
+
+    printf("commaCount = %d\n", commaCount);
     printf("%d) input: %s\n", __LINE__, input);
     
-    error = syntax(input, &head);
+
+    error = syntax(input, &head, commaCount);
     if(error)
     {
         printf("Invalid syntax at character %c!!!!\n", input[error]);
@@ -85,29 +85,29 @@ int main(int argc, char* argv[])
     }
 
     printf("%d) ----------------------------------\n", __LINE__);
-    printf("%d) Main head = %u\t head->first = %u\n", __LINE__, (unsigned int) head, (unsigned int) head -> first);
+    printf("%d) Main head = %u\t head->first = %u\n", __LINE__, (unsigned int) head, (unsigned int) head[0]);
 
     printf("First roll values: ");
-    for(i = 0; i < head->first->arraySize; ++i)
+    for(i = 0; i < head[0]->arraySize; ++i)
     {
-        printf("%d%s", head->first->arrayOfValues[i], (i != (head->first->arraySize) - 1) ? ", " : "\n");
+        printf("%d%s", head[0]->arrayOfValues[i], (i != (head[0]->arraySize) - 1) ? ", " : "\n");
     }
 
-    displayRolls(&head);
+    displayRolls(&head, commaCount);
 
     return 0;
 }
 
-int syntax(char *input, struct comma **head)
+int syntax(char *input, struct roll ***head, int commaCount)
 {
     int index = -1, numRolls = 1, rollsPtr = 0, encounteredD = 0;
     int state = 0;
     char rolls[10], operation = '\0';
-    struct roll  *end;
-    struct comma *tail;
+    struct roll  *end;   //traverses along the LLL chain
+    struct roll  **tail; //iterates over head[]
 
-    *head = newComma();
-
+    *head = (struct roll **) calloc(1, commaCount * sizeof(struct roll *));
+    
     tail = *head;
 
     memset(rolls, '\0', 10);
@@ -147,11 +147,6 @@ int syntax(char *input, struct comma **head)
             rolls[rollsPtr++] = input[index];
             state = 1;
         }
-        else if((state == 1) && (input[index] == ','))
-        {
-            insertNewComma(&tail);
-            state = 0;
-        }
         else if((state == 1) && (input[index] == '+' || input[index] == '-' || input[index] == ','))
         {
             if(rollsPtr > 0)
@@ -170,7 +165,7 @@ int syntax(char *input, struct comma **head)
             }
             if(input[index] == ',')
             {
-                insertNewComma(&tail);
+                tail++;
             }
             
             numRolls = 1;
@@ -232,7 +227,7 @@ int syntax(char *input, struct comma **head)
             }
             if(input[index] == ',')
             {
-                insertNewComma(&tail);
+                tail++;
             }
             
             numRolls = 1;
@@ -311,7 +306,7 @@ int syntax(char *input, struct comma **head)
             }
             if(input[index] == ',')
             {
-                insertNewComma(&tail);
+                tail++;
             }
             
             numRolls = 1;
@@ -345,7 +340,7 @@ int syntax(char *input, struct comma **head)
     printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
     int i = 0;
     struct roll *cur;
-    cur = (*head) -> first;
+    cur = (*head)[0];
     printf("%d) ", __LINE__);
     while(cur)
     {
@@ -507,26 +502,12 @@ struct roll *newInt(int value)
     return nodePtr;
 }
 
-struct comma *newComma()
+void insertNewRoll(struct roll ***tail, struct roll **end, int numRolls)
 {
-    struct comma *temp;
-    
-    temp = (struct comma *) calloc(1, sizeof(struct comma));
-    if(temp == NULL)
+    if(!(**tail))
     {
-        fprintf(stderr, "Unable to allocate memory for struct comma\n");
-    }
-    temp -> first = NULL;
-    temp -> next = NULL;
-    return temp;
-}
-
-void insertNewRoll(struct comma **tail, struct roll **end, int numRolls)
-{
-    if(!(*tail) -> first)
-    {
-        (*tail) -> first = newRoll(numRolls);
-        *end = (*tail) -> first;
+        (**tail) = newRoll(numRolls);
+        *end = (**tail);
     }
     else
     {
@@ -535,12 +516,12 @@ void insertNewRoll(struct comma **tail, struct roll **end, int numRolls)
     }
 }
 
-void insertNewInt(struct comma **tail, struct roll **end, int numRolls)
+void insertNewInt(struct roll ***tail, struct roll **end, int numRolls)
 {
-   if(!(*tail) -> first)
+   if(!(**tail))
    {
-       (*tail) -> first = newInt(numRolls);
-       *end = (*tail) -> first;
+       (**tail) = newInt(numRolls);
+       *end = (**tail);
    }
    else
    {
@@ -549,37 +530,20 @@ void insertNewInt(struct comma **tail, struct roll **end, int numRolls)
    }
 }
 
-void insertNewComma(struct comma **tail)
-{
-    if(!*tail)
-    {
-        *tail = newComma();
-        *tail = (*tail) -> next;
-    }
-    else
-    {
-        (*tail) -> next = newComma();
-        *tail = (*tail) -> next;
-    }
-
-}
-
-void displayRolls(struct comma **head)
+void displayRolls(struct roll ***head, int commaCount)
 {
     int i = 0, j = 0;
-    struct roll  *bot = NULL;
-    struct comma *top = NULL;
+    struct roll *bot = NULL;
 
-    top = *head;
-    bot = (*head) -> first;
+    bot = (*head)[0];
 
     printf("%d) ----------------------------------\n", __LINE__);
     printf("%d) Display *head = %u\t bot = %u\n", __LINE__, (unsigned int) *head, (unsigned int) bot);
     
-    while(top)
+    for(i = 0; i < commaCount; ++i)
     {
-        bot = top -> first;
-        printf("%dth rolls:\n", i++);
+        bot = (*head)[i];
+        printf("%dth rolls:\n", i);
         while(bot)
         {
             printf("(%d)\t", bot -> arraySize);
@@ -590,6 +554,18 @@ void displayRolls(struct comma **head)
             bot = bot -> next;
         }
         printf("End of while(bot)\n");
-        top = top -> next;
     }
+}
+
+int countCommas(char *input)
+{
+    int count = 0;
+    char *temp = input;
+    while(*temp)
+    {
+        if(*temp == ',')
+            count++;
+        temp++;
+    }
+    return ++count;
 }
