@@ -10,18 +10,18 @@
  *     will be at the end of the linked list. 
  */
 
-
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+*/
 struct roll{
     int arraySize, addedValue;
     int *arrayOfValues;
     struct roll *next;
 };
-
+/*
 int syntax(char *input, struct roll ***head, int commaCount);
 void cleanSpaces(char *input, int len);
 void randNums(struct roll *temp, int modulus);
@@ -34,13 +34,13 @@ void insertNewInt(struct roll ***tail, struct roll **end, int numRolls);
 void insertNewComma(struct roll ***tail);
 void displayRolls(struct roll ***head, int commaCount);
 int countCommas(char *input);
-
+*/
 int main(int argc, char* argv[])
 {
     int error = 0, commaCount = 0, i = 0;
     char *input;
     struct roll **head;
-    srand(time(NULL));
+//    srand(time(NULL));
 
     if(argc < 2)
     {
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-
+/*
 int syntax(char *input, struct roll ***head, int commaCount)
 {
     int index = -1, numRolls = 1, rollsPtr = 0, encounteredD = 0;
@@ -569,3 +569,4 @@ int countCommas(char *input)
     }
     return ++count;
 }
+*/
