@@ -99,7 +99,10 @@ int main(int argc, char* argv[])
     sumRolls(&head, commaCount);
     deleteAll(&head, commaCount);
     free(head);
-    free(input);
+    if(input != argv[1])
+    {
+        free(input);
+    }
 
     return 0;
 }
