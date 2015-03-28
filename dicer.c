@@ -35,6 +35,7 @@ void insertNewComma(struct roll ***tail);
 void displayRolls(struct roll ***head, int commaCount);
 int countCommas(char *input);
 void sumRolls(struct roll ***head, int commaCount);
+void deleteAll(struct roll ***head, int commaCount);
 
 int main(int argc, char* argv[])
 {
@@ -96,6 +97,9 @@ int main(int argc, char* argv[])
 */
     displayRolls(&head, commaCount);
     sumRolls(&head, commaCount);
+    deleteAll(&head, commaCount);
+    free(head);
+    free(input);
 
     return 0;
 }
@@ -620,5 +624,25 @@ void sumRolls(struct roll ***head, int commaCount)
             bot = bot -> next;
         }
         printf("%d%s", sum, (i != commaCount - 1) ? ", " : "\n");
+    }
+}
+
+void deleteAll(struct roll ***head, int commaCount)
+{
+    struct roll *bot = NULL, *temp = NULL;
+    int i = 0;
+    for(i = 0; i < commaCount; ++i)
+    {
+        bot = (*head)[i];
+        temp = bot -> next;
+        while(temp)
+        {
+            free(bot -> arrayOfValues);
+            free(bot);
+            bot = temp;
+            temp = temp -> next;
+        }
+        free(bot -> arrayOfValues);
+        free(bot);
     }
 }
