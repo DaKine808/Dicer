@@ -5,6 +5,23 @@
 
 void cleanSpaces(char *input, int len)
 {
+    char *lead = input, *follow = input;
+
+    while(*lead)
+    {
+        if(*follow != *lead)
+            *follow = *lead;
+        if(*lead == ' ')
+        {
+            while(*(++lead) == ' ')
+                ;
+            *follow = *lead;
+        }
+        lead++;
+        follow++;
+    }
+    *follow = '\0';
+/*
     int lead = 0, follow = 0;
 
     for(lead = 0, follow = 0; lead < len; ++lead, ++follow)
@@ -20,7 +37,7 @@ void cleanSpaces(char *input, int len)
     }
 
     input[follow] = '\0';
-
+*/
 //    printf("%d) Clean spaces: %s\n", __LINE__, input);
 
 }

@@ -12,7 +12,7 @@ int syntax(char *input, struct roll ***head, int commaCount)
 {
     int index = -1, numRolls = 1, rollsPtr = 0;
     int state = 0, encounteredD = 0, encounteredHL = 0;
-    char rolls[10], operation = '+';
+    char rolls[10], operation = '+', inputChar = '\0';
     struct roll  *end;   //traverses along the LLL chain
     struct roll  **tail; //iterates over head[]
 
@@ -22,15 +22,21 @@ int syntax(char *input, struct roll ***head, int commaCount)
 
     memset(rolls, '\0', 10);
 
-    while(input[++index])
+    while(inputChar = input[++index])
     {
+        printf("input = %c\n", inputChar);
 //        printf("%d) Head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
-        if((state == 0) && (input[index] >= '1') && (input[index] <= '9'))
+        if((state == 0) && (inputChar >= '1') && (inputChar <= '9'))
         {
-            rolls[rollsPtr++] = input[index];
+            rolls[rollsPtr++] = inputChar;
+            if(rollsPtr > 9)
+            {
+                fprintf(stderr, "Too many digits in integer!");
+                return index;
+            }
             state = 1;
         }
-        else if((state == 0) && (input[index] == 'd'))
+        else if((state == 0) && (inputChar == 'd'))
         {
             encounteredD = 1;
 
@@ -47,17 +53,17 @@ int syntax(char *input, struct roll ***head, int commaCount)
 
             state = 2;
         }
-        else if((state == 1) && (input[index] == '\0'))
+        else if((state == 1) && (inputChar == '\0'))
         {
             printf("\nReturning from state 1!\n");
             return 0;
         }
-        else if((state == 1) && (input[index] >= '0') && (input[index] <='9'))
+        else if((state == 1) && (inputChar >= '0') && (inputChar <='9'))
         {
-            rolls[rollsPtr++] = input[index];
+            rolls[rollsPtr++] = inputChar;
             state = 1;
         }
-        else if((state == 1) && (input[index] == '+' || input[index] == '-' || input[index] == ','))
+        else if((state == 1) && (inputChar == '+' || inputChar == '-' || inputChar == ','))
         {
             if(rollsPtr > 0)
             {
@@ -77,21 +83,21 @@ int syntax(char *input, struct roll ***head, int commaCount)
             {
                 insertNewInt(&tail, &end, numRolls, operation);
             }
-            if(input[index] == ',')
+            if(inputChar == ',')
             {
                 tail++;
                 operation = '+';
             }
             else
             {
-                operation = input[index];
+                operation = inputChar;
             }
             
             numRolls = 1;
             memset(rolls, '\0', 10);
             state = 0;
         }
-        else if((state == 1) && (input[index] == 'd'))
+        else if((state == 1) && (inputChar == 'd'))
         {
             encounteredD = 1;
 
@@ -111,23 +117,23 @@ int syntax(char *input, struct roll ***head, int commaCount)
 //        {
 //            state = 4;
 //        }
-        else if((state == 2) && (input[index] >= '1') && (input[index] <= '9'))
+        else if((state == 2) && (inputChar >= '1') && (inputChar <= '9'))
         {
-            rolls[rollsPtr++] = input[index];
+            rolls[rollsPtr++] = inputChar;
             state = 3;
         }
-        else if((state == 3) && (input[index] == '\0'))
+        else if((state == 3) && (inputChar == '\0'))
         {
             printf("\nReturning from state 3!\n");
             return 0;
         }
-        else if((state == 3) && (input[index] >= '0') && (input[index] <= '9'))
+        else if((state == 3) && (inputChar >= '0') && (inputChar <= '9'))
         {
-            rolls[rollsPtr++] = input[index];
+            rolls[rollsPtr++] = inputChar;
             state = 3;
         }
 
-        else if((state == 3) && (input[index] == ','))
+        else if((state == 3) && (inputChar == ','))
         {
             if(rollsPtr > 0)
             {
@@ -147,7 +153,7 @@ int syntax(char *input, struct roll ***head, int commaCount)
             {
                 insertNewInt(&tail, &end, numRolls, operation);
             }
-            if(input[index] == ',')
+            if(inputChar == ',')
             {
                 tail++;
                 operation = '+';
@@ -157,7 +163,7 @@ int syntax(char *input, struct roll ***head, int commaCount)
             memset(rolls, '\0', 10);
             state = 0;
         }
-        else if((state == 3) && (input[index] == '+' || input[index] == '-'))
+        else if((state == 3) && (inputChar == '+' || inputChar == '-'))
         {
             if(rollsPtr > 0)
             {
@@ -180,21 +186,21 @@ int syntax(char *input, struct roll ***head, int commaCount)
             
             numRolls = 1;
             memset(rolls, '\0', 10);
-            operation = input[index];
+            operation = inputChar;
             state = 4;
         }
-        else if((state == 4) && ((input[index] == 'L') || (input[index] == 'l') || (input[index] == 'H') || (input[index] == 'h')))
+        else if((state == 4) && ((inputChar == 'L') || (inputChar == 'l') || (inputChar == 'H') || (inputChar == 'h')))
         {
             encounteredHL = 1;
-            highLow(end, input[index], operation);
+            highLow(end, inputChar, operation);
             state = 5;
         }
-        else if((state == 4) && (input[index] >= '1') && (input[index] <='9'))
+        else if((state == 4) && (inputChar >= '1') && (inputChar <='9'))
         {
-            rolls[rollsPtr++] = input[index];
+            rolls[rollsPtr++] = inputChar;
             state = 1;
         }
-        else if((state == 4) && (input[index] == 'd'))
+        else if((state == 4) && (inputChar == 'd'))
         {
             encounteredD = 1;
 
@@ -210,12 +216,12 @@ int syntax(char *input, struct roll ***head, int commaCount)
             memset(rolls, '\0', 10);
             state = 2;
         }
-        else if((state == 5) && (input[index] == '\0'))
+        else if((state == 5) && (inputChar == '\0'))
         {
             printf("\nReturning from state 5!\n");
             return 0;
         }
-        else if((state == 5) && (input[index] == '+' || input[index] == '-' || input[index] == ','))
+        else if((state == 5) && (inputChar == '+' || inputChar == '-' || inputChar == ','))
         {
             if(rollsPtr > 0)
             {
@@ -235,14 +241,14 @@ int syntax(char *input, struct roll ***head, int commaCount)
             {
                 insertNewInt(&tail, &end, numRolls, operation);
             }
-            if(input[index] == ',')
+            if(inputChar == ',')
             {
                 tail++;
                 operation = '+';
             }
             else
             {
-                operation = input[index];
+                operation = inputChar;
             }
             
             numRolls = 1;
