@@ -24,7 +24,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
 
     while(inputChar = input[++index])
     {
-        printf("input = %c\n", inputChar);
 //        printf("%d) Head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
         if((state == 0) && (inputChar >= '1') && (inputChar <= '9'))
         {
