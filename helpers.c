@@ -21,25 +21,6 @@ void cleanSpaces(char *input, int len)
         follow++;
     }
     *follow = '\0';
-/*
-    int lead = 0, follow = 0;
-
-    for(lead = 0, follow = 0; lead < len; ++lead, ++follow)
-    {
-        if(follow != lead)
-            input[follow] = input[lead];
-        if(input[lead] == ' ')
-        {
-            while(input[++lead] == ' ')
-                ;
-            input[follow] = input[lead];
-        }
-    }
-
-    input[follow] = '\0';
-*/
-//    printf("%d) Clean spaces: %s\n", __LINE__, input);
-
 }
 
 void randNums(struct roll *temp, int modulus)

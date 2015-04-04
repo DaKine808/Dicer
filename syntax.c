@@ -24,7 +24,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
 
     while(inputChar = input[++index])
     {
-//        printf("%d) Head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
         if((state == 0) && (inputChar >= '1') && (inputChar <= '9'))
         {
             rolls[rollsPtr++] = inputChar;
@@ -121,11 +120,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
             rolls[rollsPtr++] = inputChar;
             state = 3;
         }
-        else if((state == 3) && (inputChar == '\0'))
-        {
-            printf("\nReturning from state 3!\n");
-            return 0;
-        }
         else if((state == 3) && (inputChar >= '0') && (inputChar <= '9'))
         {
             rolls[rollsPtr++] = inputChar;
@@ -215,11 +209,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
             memset(rolls, '\0', 10);
             state = 2;
         }
-        else if((state == 5) && (inputChar == '\0'))
-        {
-            printf("\nReturning from state 5!\n");
-            return 0;
-        }
         else if((state == 5) && (inputChar == '+' || inputChar == '-' || inputChar == ','))
         {
             if(rollsPtr > 0)
@@ -259,7 +248,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
     }
     if(state != 5) //If the last character in the input string is not L or H
     {
-//        printf("%d) encounteredD = %d\n", __LINE__, encounteredD);
         if(rollsPtr > 0)
         {
             numRolls = atoi(rolls);
@@ -275,22 +263,6 @@ int syntax(char *input, struct roll ***head, int commaCount)
             insertNewInt(&tail, &end, numRolls, operation);
         }
     }
-/*
-    printf("%d) ----------------------------------\n", __LINE__);
-    printf("%d) Syntax *head = %u\t end = %u\n", __LINE__, (unsigned int) *head, (unsigned int) end);
-    int i = 0;
-    struct roll *cur;
-    cur = (*head)[0];
-    printf("%d) ", __LINE__);
-    while(cur)
-    {
-        printf("\t");
-        for(i = 0; i < cur -> arraySize; ++i)
-            printf("array[%d]=%d, ", i, cur -> arrayOfValues[i]);
-        cur = cur -> next;
-        printf("\n");
-    }
-*/
     return 0;
 }
 

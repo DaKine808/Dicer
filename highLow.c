@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "dicer.h"
 
-//There might be a bug in the way I increment i in the following function
 void highLow(struct roll *temp, char hOrL, char operation)
 {
     int i = 0, savedIndex = 0, value = 0, size = 0;

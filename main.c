@@ -1,13 +1,15 @@
 /*
- *Note to self: consider using a dynamic array of linked lists, where
- *     an array index indicates a set of rolls ending with a comma.
- *     For example: 2d20+4d6-H,4d6-L
- *     should produce an array of size 2 since there are 2 sets of rolls.
- *     
- *     And each element of a linked list has a pointer to an array of ints
- *     where the array of ints are the values to be summed. This makes 
- *     the problem of subtraction easier since the last roll that was read
- *     will be at the end of the linked list. 
+ * NOTE: Dicer currently only takes command line arguments!
+ *
+ * Dicer is D&D style dice rolling program where you can
+ * specify the number of times you wish to roll a die and
+ * whether you want to add or subtract another roll or the 
+ * lowest/highest value rolled. You may also comma seperate
+ * multiple instances of rolls.
+ * 
+ * Example: 4d6 - L, 2d20 + d7 - H, 20 - 6
+ * 
+ * The output will be 3 comma seperated results.
  */
 
 #include <stdio.h>
@@ -54,10 +56,6 @@ int main(int argc, char* argv[])
 
     commaCount = countCommas(input);
 
-//    printf("commaCount = %d\n", commaCount);
-//    printf("%d) input: %s\n", __LINE__, input);
-    
-
     error = syntax(input, &head, commaCount);
     if(error)
     {
@@ -65,15 +63,6 @@ int main(int argc, char* argv[])
         return -3;
     }
 
-//    printf("%d) ----------------------------------\n", __LINE__);
-//    printf("%d) Main head = %u\t head->first = %u\n", __LINE__, (unsigned int) head, (unsigned int) head[0]);
-/*
-    printf("First roll values: ");
-    for(i = 0; i < head[0]->arraySize; ++i)
-    {
-        printf("%d%s", head[0]->arrayOfValues[i], (i != (head[0]->arraySize) - 1) ? ", " : "\n");
-    }
-*/
     displayRolls(&head, commaCount);
     sumRolls(&head, commaCount);
     deleteAll(&head, commaCount);
