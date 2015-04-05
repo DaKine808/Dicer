@@ -12,10 +12,6 @@
  * The output will be 3 comma seperated results.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include "dicer.h"
 
 int main(int argc, char* argv[])

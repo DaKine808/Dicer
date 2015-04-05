@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "dicer.h"
 
 void highLow(struct roll *temp, char hOrL, char operation)

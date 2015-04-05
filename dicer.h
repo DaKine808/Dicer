@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
 struct roll{
     int arraySize, sign, addedValue;
     int *arrayOfValues;

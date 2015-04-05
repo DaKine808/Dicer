@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "dicer.h"
 
 void cleanSpaces(char *input, int len)
