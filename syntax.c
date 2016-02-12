@@ -241,7 +241,12 @@ int syntax(char *input, struct roll ***head, int commaCount)
             state = 0;
         }
         else
-            return index;
+        {
+            if(index == 0)
+                return -1;
+            else
+                return index;
+        }
     }
     if(state != 5) //If the last character in the input string is not L or H
     {
@@ -260,6 +265,7 @@ int syntax(char *input, struct roll ***head, int commaCount)
             insertNewInt(&tail, &end, numRolls, operation);
         }
     }
+    printf("returning from syntax!\n");
     return 0;
 }
 

@@ -55,7 +55,9 @@ int main(int argc, char* argv[])
     error = syntax(input, &head, commaCount);
     if(error)
     {
-        printf("Invalid syntax at character %c!!!!\n", input[error]);
+        if(error < 0)
+            error = 0;
+        printf("Invalid syntax at character \'%c\' !!!!\n", input[error]);
         return -3;
     }
 
